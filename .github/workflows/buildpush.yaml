@@ -22,7 +22,7 @@ jobs:
 
     - name: Build the Docker Image
       run: |
-        docker build -t ghcr.io/${{ github.repository_owner }}/francisapp:latest
+        docker build -t ghcr.io/${{ github.repository_owner }}/francisapp:latest .
     
     - name: Push the Docker Image
       run: |

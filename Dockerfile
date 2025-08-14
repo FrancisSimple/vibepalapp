@@ -1,3 +1,3 @@
 FROM nginx:alpine
 
-CMD ["echo", "HELLO WORLD"]
+CMD ["sh", "-c", "echo HELLO WORLD && sleep infinity"]

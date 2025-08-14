@@ -2,30 +2,30 @@ name: Build and Push Docker Image
 
 on:
   push:
-   branches:
-    - main
+    branches:
+      - main
 
 jobs:
   build:
-   runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
 
-   steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-    
-    - name: Log in to Github Container Registry
-      uses: docker/login-action@v2
-      with:
-       registry: ghcr.io
-       username: ${{ github.actor }}
-       password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Build the Docker Image
-      run: |
-        owner_lower=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
-        docker build -t ghcr.io/${owner_lower}/francisapp:latest .
-    
-    - name: Push the Docker Image
-      run: |
-        owner_lower=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
-        docker push ghcr.io/${owner_lower}/francisapp:latest 
+      # Step 2: Log in to GitHub Container Registry
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      # Step 3: Convert owner name to lowercase
+      - name: Set lowercase owner
+        run: echo "OWNER_LOWER=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      # Step 4: Build Docker image
+      - name: Build Docker image
+        run: docker build . --file Dockerfile --tag ghcr.io/${{ env.OWNER_LOWER }}/francisapp:latest
+
+      # Step 5: Push Docker image
+      - name: Push Docker image
+        run: docker push ghcr.io/${{ env.OWNER_LOWER }}/francisapp:latest
